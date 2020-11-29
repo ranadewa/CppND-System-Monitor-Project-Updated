@@ -18,6 +18,9 @@ const std::string kVersionFilename{"/version"};
 const std::string kOSPath{"/etc/os-release"};
 const std::string kPasswordPath{"/etc/passwd"};
 
+const std::regex totalProcessTag(R"(processes\s(\d+))");
+const std::regex runningProcessTag(R"(procs_running\s(\d+))");
+
 // System
 float MemoryUtilization();
 long UpTime();
@@ -26,6 +29,9 @@ int TotalProcesses();
 int RunningProcesses();
 std::string OperatingSystem();
 std::string Kernel();
+
+// helper funtions
+int getCountForTag(std::regex const& re);
 
 // CPU
 enum CPUStates {

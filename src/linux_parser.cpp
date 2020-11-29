@@ -35,13 +35,13 @@ string LinuxParser::OperatingSystem() {
 
 // DONE: An example of how to read data from the filesystem
 string LinuxParser::Kernel() {
-  string os, kernel;
+  string os, version, kernel;
   string line;
   std::ifstream stream(kProcDirectory + kVersionFilename);
   if (stream.is_open()) {
     std::getline(stream, line);
     std::istringstream linestream(line);
-    linestream >> os >> kernel;
+    linestream >> os >> version >> kernel;
   }
   return kernel;
 }
@@ -67,7 +67,36 @@ vector<int> LinuxParser::Pids() {
 }
 
 // TODO: Read and return the system memory utilization
-float LinuxParser::MemoryUtilization() { return 0.0; }
+float LinuxParser::MemoryUtilization() { 
+  float utilisation = 0;
+
+  std::ifstream stream(kProcDirectory + kMeminfoFilename);
+
+  if(stream.is_open())
+  {
+    std::string line;
+    getline(stream, line);
+    
+    std::string totalLabel, freeLabel, unit;
+    float total, freeM;
+
+    {
+      std::istringstream lineStream(line);
+      lineStream >> totalLabel >> total >> unit;
+    }
+    
+    getline(stream, line);
+    {
+      std::istringstream lineStream(line);
+      lineStream >> freeLabel >> freeM >> unit;
+    }
+    
+    utilisation = (total - freeM) / total;
+  }
+
+  return utilisation;
+  
+ }
 
 // TODO: Read and return the system uptime
 long LinuxParser::UpTime() { return 0; }
@@ -88,11 +117,35 @@ long LinuxParser::IdleJiffies() { return 0; }
 // TODO: Read and return CPU utilization
 vector<string> LinuxParser::CpuUtilization() { return {}; }
 
+int LinuxParser::getCountForTag(std::regex const& re) {
+  int total = 0;
+  std::smatch sm;
+  std::ifstream stream(kProcDirectory + kStatFilename);
+
+  if(stream.is_open())
+  {
+    for (std::string line; getline(stream, line);)
+    {
+      if(std::regex_match(line, sm, re))
+      {
+        auto count = sm[1].str();
+        total = std::stoi(count);
+      }
+    }
+  }
+
+  return total;
+}
+
 // TODO: Read and return the total number of processes
-int LinuxParser::TotalProcesses() { return 0; }
+int LinuxParser::TotalProcesses() { 
+    return getCountForTag(totalProcessTag);  
+ }
 
 // TODO: Read and return the number of running processes
-int LinuxParser::RunningProcesses() { return 0; }
+int LinuxParser::RunningProcesses() { 
+   return getCountForTag(runningProcessTag); ; 
+  }
 
 // TODO: Read and return the command associated with a process
 // REMOVE: [[maybe_unused]] once you define the function
