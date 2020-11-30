@@ -132,8 +132,24 @@ long LinuxParser::ActiveJiffies() { return 0; }
 // TODO: Read and return the number of idle jiffies for the system
 long LinuxParser::IdleJiffies() { return 0; }
 
-// TODO: Read and return CPU utilization
-vector<string> LinuxParser::CpuUtilization() { return {}; }
+vector<string> LinuxParser::CpuUtilization() { 
+  vector<string> utilization;
+
+  std::ifstream stream(kProcDirectory + kStatFilename);
+  if(stream.is_open())
+  {
+    string line;
+    getline(stream, line);
+    std::istringstream lineStream(line);
+
+    string cpu, user, nice, system, idle, iowait, irq, softirq, steal, guest, guest_nice;
+
+    lineStream >> cpu >> user >> nice >> system >> idle >> iowait >> irq >> softirq >> steal >> guest >> guest_nice;
+
+    utilization = {user, nice, system, idle, iowait, irq, softirq, steal, guest, guest_nice};
+  }
+
+  return utilization; }
 
 int LinuxParser::getCountForTag(std::regex const& re) {
   int total = 0;
