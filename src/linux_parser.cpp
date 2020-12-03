@@ -151,10 +151,10 @@ vector<string> LinuxParser::CpuUtilization() {
 
   return utilization; }
 
-string LinuxParser::getTag(std::regex const& re, int index) {
+string getTag(std::string const& path, std::regex const& re, int index) {
   string result;
   std::smatch sm;
-  std::ifstream stream(kProcDirectory + kStatFilename);
+  std::ifstream stream(path);
 
   if(stream.is_open())
   {
@@ -163,6 +163,7 @@ string LinuxParser::getTag(std::regex const& re, int index) {
       if(std::regex_match(line, sm, re))
       {
         result = sm[index].str();
+        break;
       }
     }
   }
@@ -170,14 +171,12 @@ string LinuxParser::getTag(std::regex const& re, int index) {
   return result;
 }
 
-// TODO: Read and return the total number of processes
 int LinuxParser::TotalProcesses() { 
-    return std::stoi(getTag(totalProcessTag, 1));  
+    return std::stoi(getTag(kProcDirectory + kStatFilename, totalProcessTag, 1));  
  }
 
-// TODO: Read and return the number of running processes
 int LinuxParser::RunningProcesses() { 
-   return std::stoi(getTag(runningProcessTag, 1)); 
+   return std::stoi(getTag(kProcDirectory + kStatFilename, runningProcessTag, 1)); 
   }
 
 // TODO: Read and return the command associated with a process
@@ -200,16 +199,25 @@ string LinuxParser::Command(int pid) {
 // REMOVE: [[maybe_unused]] once you define the function
 string LinuxParser::Ram(int pid) { return string(); }
 
-// TODO: Read and return the user ID associated with a process
-// REMOVE: [[maybe_unused]] once you define the function
 string LinuxParser::Uid(int pid)
  { 
-  return getTag(uidTag, 1); 
-  }
+  
+  return getTag(kProcDirectory + std::to_string(pid) + kStatusFilename, uidTag, 1); 
+ }
 
-// TODO: Read and return the user associated with a process
-// REMOVE: [[maybe_unused]] once you define the function
-string LinuxParser::User(int pid[[maybe_unused]]) { return string(); }
+string LinuxParser::User(int pid) { 
+  string user;
+
+  string tag(R"((\w+):x:)");
+  auto uid = Uid(pid);
+  tag += uid + string(".*");
+
+  const std::regex userTag(tag);
+
+  user = getTag(kPasswordPath, userTag, 1);
+
+  return user; 
+  }
 
 // TODO: Read and return the uptime of a process
 // REMOVE: [[maybe_unused]] once you define the function

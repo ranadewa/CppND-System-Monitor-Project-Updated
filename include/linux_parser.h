@@ -20,7 +20,8 @@ const std::string kPasswordPath{"/etc/passwd"};
 
 const std::regex totalProcessTag(R"(processes\s(\d+))");
 const std::regex runningProcessTag(R"(procs_running\s(\d+))");
-const std::regex uidTag(R"(Uid:\s+(\d+))");
+ const std::regex uidTag(R"(Uid:\s+(\d+).*)");
+
 
 // System
 float MemoryUtilization();
@@ -30,9 +31,6 @@ int TotalProcesses();
 int RunningProcesses();
 std::string OperatingSystem();
 std::string Kernel();
-
-// helper funtions
-std::string getTag(std::regex const& re, int index);
 
 // CPU
 enum CPUStates {
