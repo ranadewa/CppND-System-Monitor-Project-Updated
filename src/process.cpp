@@ -11,15 +11,19 @@ using std::string;
 using std::to_string;
 using std::vector;
 
-int Process::Pid() { return pid_; }
-
-// TODO: Return this process's CPU utilization
-float Process::CpuUtilization() const { 
+Process::Process(int pid, std::string user, std::string command): pid_(pid), user_(user), command_(command)
+                                                                , utilisation_(0)
+{
      auto activeTime = LinuxParser::ActiveJiffies(pid_) / sysconf(_SC_CLK_TCK);
      auto proccessTime = LinuxParser::UpTime(pid_);
 
-      return  activeTime / (proccessTime == 0 ? 1 : proccessTime);
-    }
+      utilisation_ =  activeTime / (proccessTime == 0 ? 1 : proccessTime);
+}
+
+int Process::Pid() { return pid_; }
+
+// TODO: Return this process's CPU utilization
+float Process::CpuUtilization() const { return utilisation_; }
 
 string Process::Command() { return command_; }
 
