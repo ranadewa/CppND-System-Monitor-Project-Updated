@@ -2,7 +2,8 @@
 #include <unistd.h>
 #include <string>
 #include <vector>
-
+#include <unistd.h>
+#include <iostream>
 #include "linux_parser.h"
 
 using std::stof;
@@ -124,7 +125,30 @@ long LinuxParser::Jiffies() { return 0; }
 
 // TODO: Read and return the number of active jiffies for a PID
 // REMOVE: [[maybe_unused]] once you define the function
-long LinuxParser::ActiveJiffies(int pid[[maybe_unused]]) { return 0; }
+long LinuxParser::ActiveJiffies(int pid) { 
+  
+  std::ifstream stream(kProcDirectory + std::to_string(pid) + kStatFilename);
+
+  long utime = 0, stime = 0, cutime = 0, cstime =0;
+
+    if(stream.is_open())
+    {
+      string line;
+      getline(stream, line);
+
+      std::istringstream lineStream(line);
+
+      for (int i=0;i<14;i++){
+
+        lineStream >>utime;
+
+      }
+
+      lineStream >> stime >> cutime >> cstime; // 15, 16, 17
+    }
+
+    return utime + stime + cutime + cstime; 
+  }
 
 // TODO: Read and return the number of active jiffies for the system
 long LinuxParser::ActiveJiffies() { return 0; }
@@ -152,7 +176,7 @@ vector<string> LinuxParser::CpuUtilization() {
   return utilization; }
 
 string getTag(std::string const& path, std::regex const& re, int index) {
-  string result;
+  string result{"0"};
   std::smatch sm;
   std::ifstream stream(path);
 
@@ -197,11 +221,15 @@ string LinuxParser::Command(int pid) {
 
 // TODO: Read and return the memory used by a process
 // REMOVE: [[maybe_unused]] once you define the function
-string LinuxParser::Ram(int pid) { return string(); }
+string LinuxParser::Ram(int pid) { 
+
+  int megaByteValue = std::stoi(getTag(kProcDirectory + std::to_string(pid)+ kStatusFilename, memoryTag, 1)) / 1000;
+
+  return std::to_string(megaByteValue);
+ }
 
 string LinuxParser::Uid(int pid)
  { 
-  
   return getTag(kProcDirectory + std::to_string(pid) + kStatusFilename, uidTag, 1); 
  }
 
@@ -222,8 +250,20 @@ string LinuxParser::User(int pid) {
 // TODO: Read and return the uptime of a process
 // REMOVE: [[maybe_unused]] once you define the function
 long LinuxParser::UpTime(int pid) { 
+
   long uptime = 0;
 
+  try
+  {
+    auto jiffies = std::stol(getTag(kProcDirectory + std::to_string(pid) + kStatFilename, processStartTimeTag, 2));
+    auto systemUptime = LinuxParser::UpTime();
+    uptime = systemUptime - jiffies / sysconf(_SC_CLK_TCK);
+  }
+  catch(const std::exception& e)
+  {
+    std::cerr << "Error in parsing uptime for pid: " << pid << " " << e.what() << '\n';
+  }
+    
 
-  return uptime; 
+    return uptime;
   }

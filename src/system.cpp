@@ -18,16 +18,19 @@ System::System()
 {
     os_ = LinuxParser::OperatingSystem();
     kernel_ = LinuxParser::Kernel();
-
-    for(auto pid: LinuxParser::Pids())
-    {
-      processes_.emplace_back(pid, LinuxParser::User(pid),  LinuxParser::Command(pid));
-    }
 }
 
 Processor& System::Cpu() { return cpu_; }
 
-vector<Process>& System::Processes() { return processes_; }
+vector<Process>& System::Processes() {
+    processes_.clear();
+     for(auto pid: LinuxParser::Pids())
+    {
+      processes_.emplace_back(pid, LinuxParser::User(pid),  LinuxParser::Command(pid));
+    } 
+  sort(processes_.begin(), processes_.end());
+  return processes_; 
+  }
 
 std::string System::Kernel() { return kernel_; }
 

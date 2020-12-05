@@ -20,8 +20,14 @@ const std::string kPasswordPath{"/etc/passwd"};
 
 const std::regex totalProcessTag(R"(processes\s(\d+))");
 const std::regex runningProcessTag(R"(procs_running\s(\d+))");
- const std::regex uidTag(R"(Uid:\s+(\d+).*)");
+const std::regex uidTag(R"(Uid:\s+(\d+).*)");
+const std::regex memoryTag(R"(VmSize:\s+(\d+).*)");
 
+// Matches the format of /proc/<pid>/stat file returns 14, 15, 16, 17, 22 fields as captures
+const std::regex 
+processJiffyTag(R"(\d+\s\(.*\)\s\w+(\s-\d+|\s\d+){11}(\s-\d+|\s\d+){1}(\s-\d+|\s\d+){1}(\s-\d+|\s\d+){1}.*)");
+const std::regex 
+processStartTimeTag(R"(\d+\s\(.*\)\s\w+(\s-\d+|\s(\d+)){19}.*)");
 
 // System
 float MemoryUtilization();

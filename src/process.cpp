@@ -14,7 +14,12 @@ using std::vector;
 int Process::Pid() { return pid_; }
 
 // TODO: Return this process's CPU utilization
-float Process::CpuUtilization() const { return 0; }
+float Process::CpuUtilization() const { 
+     auto activeTime = LinuxParser::ActiveJiffies(pid_) / sysconf(_SC_CLK_TCK);
+     auto proccessTime = LinuxParser::UpTime(pid_);
+
+      return  activeTime / (proccessTime == 0 ? 1 : proccessTime);
+    }
 
 string Process::Command() { return command_; }
 
