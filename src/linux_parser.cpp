@@ -1,8 +1,8 @@
 #include "linux_parser.h"
 
-#include <dirent.h>
 #include <unistd.h>
 
+#include <filesystem>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -11,6 +11,7 @@ using std::stof;
 using std::string;
 using std::to_string;
 using std::vector;
+namespace fs = std::filesystem;
 
 // DONE: An example of how to read data from the filesystem
 string LinuxParser::OperatingSystem() {
@@ -51,20 +52,16 @@ string LinuxParser::Kernel() {
 // BONUS: Update this to use std::filesystem
 vector<int> LinuxParser::Pids() {
   vector<int> pids;
-  DIR* directory = opendir(kProcDirectory.c_str());
-  struct dirent* file;
-  while ((file = readdir(directory)) != nullptr) {
-    // Is this a directory?
-    if (file->d_type == DT_DIR) {
-      // Is every character of the name a digit?
-      string filename(file->d_name);
+
+  for (auto const& entry : fs::directory_iterator(kProcDirectory)) {
+    if (entry.is_directory()) {
+      string filename = entry.path().filename().string();
       if (std::all_of(filename.begin(), filename.end(), isdigit)) {
         int pid = stoi(filename);
         pids.push_back(pid);
       }
     }
   }
-  closedir(directory);
   return pids;
 }
 
@@ -137,7 +134,7 @@ long LinuxParser::ActiveJiffies(int pid) {
         case 15:
         case 16:
         case 17:
-          jiffies  += std::stol(key);
+          jiffies += std::stol(key);
           break;
 
         default:
