@@ -23,11 +23,8 @@ const std::regex runningProcessTag(R"(procs_running\s(\d+))");
 const std::regex uidTag(R"(Uid:\s+(\d+).*)");
 const std::regex memoryTag(R"(VmSize:\s+(\d+).*)");
 
-// Matches the format of /proc/<pid>/stat file returns 14, 15, 16, 17, 22 fields as captures
-const std::regex 
-processJiffyTag(R"(\d+\s\(.*\)\s\w+(\s-\d+|\s\d+){11}(\s-\d+|\s\d+){1}(\s-\d+|\s\d+){1}(\s-\d+|\s\d+){1}.*)");
-const std::regex 
-processStartTimeTag(R"(\d+\s\(.*\)\s\w+(\s-\d+|\s(\d+)){19}.*)");
+// Matches the format of /proc/<pid>/stat file returns 22 field as a capture
+const std::regex processStartTimeTag(R"(\d+\s\(.*\)\s\w+(\s-\d+|\s(\d+)){19}.*)");
 
 // System
 float MemoryUtilization();
@@ -52,10 +49,8 @@ enum CPUStates {
   kGuestNice_
 };
 std::vector<std::string> CpuUtilization();
-long Jiffies();
-long ActiveJiffies();
 long ActiveJiffies(int pid);
-long IdleJiffies();
+
 
 // Processes
 std::string Command(int pid);

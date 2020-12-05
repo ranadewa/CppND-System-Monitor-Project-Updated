@@ -8,14 +8,14 @@ float Processor::Utilization() {
 
     if(utilisations.size() == 10)
     {
-        double user = std::stod(utilisations[0]);
-        double nice = std::stod(utilisations[1]);
-        double system = std::stod(utilisations[2]);
-        double idle = std::stod(utilisations[3]);
-        double iowait = std::stod(utilisations[4]);
-        double irq= std::stod(utilisations[5]);
-        double softirq= std::stod(utilisations[6]);
-        double steal= std::stod(utilisations[7]);
+        double user = std::stod(utilisations[LinuxParser::CPUStates::kUser_]);
+        double nice = std::stod(utilisations[LinuxParser::CPUStates::kNice_]);
+        double system = std::stod(utilisations[LinuxParser::CPUStates::kSystem_]);
+        double idle = std::stod(utilisations[LinuxParser::CPUStates::kIdle_]);
+        double iowait = std::stod(utilisations[LinuxParser::CPUStates::kIOwait_]);
+        double irq= std::stod(utilisations[LinuxParser::CPUStates::kIRQ_]);
+        double softirq= std::stod(utilisations[LinuxParser::CPUStates::kSoftIRQ_]);
+        double steal= std::stod(utilisations[LinuxParser::CPUStates::kSteal_]);
 
         double totalIdle = idle + iowait;
         double totalNonIdle = user + nice + system + irq + softirq + steal;

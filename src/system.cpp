@@ -1,4 +1,7 @@
+#include "system.h"
+
 #include <unistd.h>
+
 #include <cstddef>
 #include <set>
 #include <string>
@@ -7,30 +10,28 @@
 #include "linux_parser.h"
 #include "process.h"
 #include "processor.h"
-#include "system.h"
 
 using std::set;
 using std::size_t;
 using std::string;
 using std::vector;
 
-System::System() 
-{
-    os_ = LinuxParser::OperatingSystem();
-    kernel_ = LinuxParser::Kernel();
+System::System() {
+  os_ = LinuxParser::OperatingSystem();
+  kernel_ = LinuxParser::Kernel();
 }
 
 Processor& System::Cpu() { return cpu_; }
 
 vector<Process>& System::Processes() {
-    processes_.clear();
-     for(auto pid: LinuxParser::Pids())
-    {
-      processes_.emplace_back(pid, LinuxParser::User(pid),  LinuxParser::Command(pid));
-    } 
-  sort(processes_.begin(), processes_.end());
-  return processes_; 
+  processes_.clear();
+  for (auto pid : LinuxParser::Pids()) {
+    processes_.emplace_back(pid, LinuxParser::User(pid),
+                            LinuxParser::Command(pid));
   }
+  sort(processes_.begin(), processes_.end());
+  return processes_;
+}
 
 std::string System::Kernel() { return kernel_; }
 
